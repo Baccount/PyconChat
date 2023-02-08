@@ -2,7 +2,6 @@ import socket
 import threading
 import pickle
 import os
-import sys
 
 groups = {}
 fileTransferCondition = threading.Condition()
@@ -183,12 +182,30 @@ def handshake(client):
 		print("New Group:",groupname,"| Admin:",username)
 
 def main():
-	if len(sys.argv) < 3:
-		print("USAGE: python server.py <IP> <Port>")
-		print("EXAMPLE: python server.py localhost 8000")
-		return
+	from stem.control import Controller
+	from random import randint
+	port = randint(10000, 65535)
+
+	controller = Controller.from_port(port = 9051)
+	controller.authenticate()
+	response = controller.create_ephemeral_hidden_service({80: port}, await_publication = True)
+	print(f"Created new hidden service with onion address: {response.service_id}.onion")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	listenSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	listenSocket.bind((sys.argv[1], int(sys.argv[2])))
+	listenSocket.bind(("127.0.0.1", port))
 	listenSocket.listen(10)
 	print("PyconChat Server running")
 	while True:

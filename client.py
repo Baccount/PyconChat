@@ -1,7 +1,8 @@
 import socket
 import threading
 import pickle
-import sys
+import socket
+import socks
 
 state = {}
 
@@ -176,12 +177,13 @@ def waitUserInput(serverSocket):
 			break
 
 def main():
-	if len(sys.argv) < 3:
-		print("USAGE: python client.py <IP> <Port>")
-		print("EXAMPLE: python client.py localhost 8000")
-		return
-	serverSocket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-	serverSocket.connect((sys.argv[1], int(sys.argv[2])))
+	onion = input("Enter your onion address: ")
+	socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, "127.0.0.1", 9050)
+	socket.socket = socks.socksocket
+	server = (onion, 80)
+	serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	serverSocket.connect(server)
+
 	state["inputCondition"] = threading.Condition()
 	state["sendMessageLock"] = threading.Lock()
 	state["username"] = input("Welcome to PyconChat! Please enter your username: ")
